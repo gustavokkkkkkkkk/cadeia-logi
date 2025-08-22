@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fluxo Logístico - Paçoquita Santa Helena</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #e74c3c;
+            --secondary: #f39c12;
+            --accent: #2ecc71;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --transport: #3498db;
+            --process: #9b59b6;
+            --success: #27ae60;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f9f9f9;
+            color: var(--dark);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 10px;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header-content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 15px;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .stat-item {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 10px 15px;
+            border-radius: 8px;
+            backdrop-filter: blur(5px);
+        }
+        
+        .flow-container {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            margin-bottom: 50px;
+        }
+        
+        .phase {
+            background-color: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+        
+        .phase:hover {
+            transform: translateY(-5px);
+        }
+        
+        .phase-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--light);
+            padding-bottom: 15px;
+        }
+        
+        .phase-number {
+            background-color: var(--primary);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        
+        .phase-title {
+            font-size: 1.6rem;
+            color: var(--dark);
+        }
+        
+        .phase-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .info-box {
+            background-color: var(--light);
+            padding: 20px;
+            border-radius: 8px;
+            position: relative;
+        }
+        
+        .info-title {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+        }
+        
+        .info-title i {
+            margin-right: 10px;
+        }
+        
+        .location-tag {
+            display: inline-block;
+            background-color: var(--accent);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin: 5px 5px 5px 0;
+        }
+        
+        .process-list {
+            list-style-type: none;
+        }
+        
+        .process-list li {
+            margin-bottom: 10px;
+            padding-left: 25px;
+            position: relative;
+        }
+        
+        .process-list li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--process);
+        }
+        
+        .transport-icons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .transport-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            min-width: 80px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+        
+        .transport-item:hover {
+            transform: scale(1.05);
+        }
+        
+        .transport-icon {
+            font-size: 1.8rem;
+            color: var(--transport);
+            margin-bottom: 5px;
+        }
+        
+        .transport-name {
+            font-size: 0.8rem;
+            text-align: center;
+        }
+        
+        .arrow-down {
+            text-align: center;
+            font-size: 2rem;
+            color: var(--primary);
+            margin: -20px 0;
+            position: relative;
+            z-index: 2;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .arrow-down i {
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+            40% {transform: translateY(-10px);}
+            60% {transform: translateY(-5px);}
+        }
+        
+        .legend {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 40px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--dark);
+        }
+        
+        .modal-title {
+            color: var(--primary);
+            margin-bottom: 15px;
+            padding-right: 30px;
+        }
+        
+        .info-icon {
+            cursor: pointer;
+            margin-left: 10px;
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+        
+        @media (max-width: 768px) {
+            .phase-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .phase-title {
+                font-size: 1.3rem;
+            }
+            
+            .stats {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+        
+        .tooltip {
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .tooltip:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--dark);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            z-index: 100;
+        }
+        
+        .map-marker {
+            display: inline-block;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .map-marker:hover::after {
+            content: attr(data-location);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--dark);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            z-index: 100;
+        }
+        
+        .highlight {
+            background-color: #ffeaa7;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-weight: 500;
+        }
+        
+        .info-point {
+            display: inline-block;
+            margin-left: 8px;
+            color: var(--primary);
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <h1>Cadeia Logística da Paçoquita</h1>
+                <p class="subtitle">Santa Helena Alimentos - Fluxo Visual Interativo</p>
+                <div class="stats">
+                    <div class="stat-item">+77% faturamento em Maio/2024</div>
+                    <div class="stat-item">R$ 29,72 mi de lucro líquido</div>
+                </div>
+            </div>
+        </header>
+        
+        <div class="flow-container">
+            <div class="phase">
+                <div class="phase-header">
+                    <div class="phase-number">1</div>
+                    <h2 class="phase-title">Matéria-Prima e Fornecimento</h2>
+                </div>
+                <div class="phase-content">
+                    <div class="info-box">
+                        <h3 class="info-title"><i class="fas fa-map-marker-alt"></i> Origem 
+                            <span class="info-icon" data-modal="origem-modal">
+                                <i class="fas fa-info-circle"></i>
+                            </span>
+                        </h3>
+                        <div>
+                            <span class="map-marker location-tag" data-location="Principal região produtora">SP Interior</span>
+                            <span class="map-marker location-tag" data-location="Marília, Jaboticabal, Tupã, Ribeirão Preto">+90% produção</span>
+                            <span class="map-marker location-tag" data-location="Regiões complementares">Minas Gerais</span>
+                            <span class="map-marker location-tag" data-location="Regiões complementares">Goiás</span>
+                        </div>
+                        <p style="margin-top: 15px;"><span class="highlight">Amendoim</span> é o ingrediente principal, complementado por:</p>
+                        <ul class="process-list">
+                            <li>Açúcar de usinas paulistas <span class="info-point" data-modal="acucar-modal">ⓘ</span></li>
+                            <li>Leite em pó e sal de fornecedores nacionais</li>
+                            <li>Embalagens de indústrias especializadas</li>
+                        </ul>
+                    </div>
+                    <div class="info-box">
+                        <h3 class="info-title"><i class="fas fa-truck-loading"></i> Transporte 
+                            <span class="info-icon" data-modal="transporte-modal">
+                                <i class="fas fa-info-circle"></i>
+                            </span>
+                        </h3>
+                        <div class="transport-icons">
+                            <div class="transport-item" data-modal="graneleiro-modal">
+                                <div class="transport-icon"><i class="fas fa-truck"></i></div>
+                                <div class="transport-name">Graneleiros</div>
+                            </div>
+                            <div class="transport-item" data-modal="bau-modal">
+                                <div class="transport-icon"><i class="fas fa-truck"></i></div>
+                                <div class="transport-name">Caminhões Baú</div>
+                            </div>
+                        </div>
+                        <p style="margin-top: 15px;"><span class="highlight">Modal rodoviário predominante</span> para transporte de insumos até a fábrica em Ribeirão Preto</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="arrow-down"><i class="fas fa-chevron-down"></i></div>
+            
+            <div class="phase">
+                <div class="phase-header">
+                    <div class="phase-number">2</div>
+                    <h2 class="phase-title">Fabricação e Processamento</h2>
+                </div>
+                <div class="phase-content">
+                    <div class="info-box">
+                        <h3 class="info-title"><i class="fas fa-industry"></i> Localização 
+        
+                        </h3>
+                        <div>
+                            <span class="map-marker location-tag" data-location="Maior produtora de doces de amendoim da América Latina">Ribeirão Preto - SP</span>
+                        </div>
+                        <p style="margin-top: 15px;">Complexo industrial com <span class="highlight">infraestrutura logística privilegiada</span>:</p>
+                        <ul class="process-list">
+                            <li>Entroncamento rodoviário (Anhanguera, Washington Luís, Bandeirantes)</li>
+                            <li>Centro de Distribuição interno integrado</li>
+                        </ul>
+                    </div>
+                    <div class="info-box">
+                        <h3 class="info-title"><i class="fas fa-cogs"></i> Processo Industrial 
+                            <span class="info-icon" data-modal="processo-modal">
+                                <i class="fas fa-info-circle"></i>
+                            </span>
+                        </h3>
+                        <ul class="process-list">
+                            <li>Recebimento e controle de qualidade</li>
+                            <li>Seleção, limpeza e torrefação do amendoim</li>
+                            <li>Moagem e transformação em pasta</li>
+                            <li>Mistura com açúcar, sal e leite em pó</li>
+                            <li>Moldagem (rolha, tabletes, cremosa)</li>
+                            <li>Resfriamento, corte e embalagem</li>
+                            <li>Armazenagem no CD interno</li>
+                        </ul>
+                        <div class="transport-icons" style="margin-top: 15px;">
+                            <div class="transport-item" data-modal="empilhadeira-modal">
+                                <div class="transport-icon"><i class="fas fa-pallet"></i></div>
+                                <div class="transport-name">Empilhadeiras</div>
+                            </div>
+                            <div class="transport-item" data-modal="transpalete-modal">
+                                <div class="transport-icon"><i class="fas fa-box"></i></div>
+                                <div class="transport-name">Transpaletes</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="arrow-down"><i class="fas fa-chevron-down"></i></div>
+            
+            <div class="phase">
+                <div class="phase-header">
+                    <div class="phase-number">3</div>
+                    <h2 class="phase-title">Rotas Logísticas</h2>
+                </div>
+                <div class="phase-content">
+                    <div class="info-box">
+                        <h3 class="info-title"><i class="fas fa-route"></i> Destinos 
+                           
+                        </h3>
+                        <div>
+                            <span class="location-tag">Todo Brasil</span>
+                            <span class="location-tag">Porto de Santos</span>
+                            <span class="location-tag">América Latina</span>
+                            <span class="location-tag">EUA e Japão</span>
+                        </div>
+                        <p style="margin-top: 15px;"><span class="highlight">Canais de distribuição</span>:</p>
+                        <ul class="process-list">
+                            <li>Centros de Distribuição regionais</li>
+                            <li>Atacadistas e varejistas</li>
+                            <li>Exportações internacionais</li>
+                        </ul>
+                    </div>
+                    <div class="info-box">
+                        <h3 class="info-title"><i class="fas fa-shipping-fast"></i> Modais 
+                            <span class="info-icon" data-modal="modais-modal">
+                                <i class="fas fa-info-circle"></i>
+                            </span>
+                        </h3>
+                        <div class="transport-icons">
+                            <div class="transport-item" data-modal="carreta-modal">
+                                <div class="transport-icon"><i class="fas fa-truck"></i></div>
+                                <div class="transport-name">Carretas</div>
+                            </div>
+                            <div class="transport-item" data-modal="van-modal">
+                                <div class="transport-icon"><i class="fas fa-truck"></i></div>
+                                <div class="transport-name">Vans/Furgões</div>
+                            </div>
+                            <div class="transport-item" data-modal="container-modal">
+                                <div class="transport-icon"><i class="fas fa-ship"></i></div>
+                                <div class="transport-name">Contêineres</div>
+                            </div>
+                           
+                        </div>
+                        <p style="margin-top: 15px;"><span class="highlight">Fluxo principal</span>: Fábrica → CDs → Varejo/Atacado → Cliente Final</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="arrow-down"><i class="fas fa-chevron-down"></i></div>
+            
+            <div class="phase">
+                <div class="phase-header">
+                    <div class="phase-number">4</div>
+                    <h2 class="phase-title">Distribuição</h2>
+                </div>
+                <div class="phase-content">
+                    <div class="info-box">
+                        <h3 class="info-title"><i class="fas fa-store"></i> Pontos de Venda 
+        
+                        </h3>
+                        <div>
+                            <span class="location-tag">Supermercados</span>
+                            <span class="location-tag">Atacarejos</span>
+                            <span class="location-tag">Distribuidores</span>
+                            <span class="location-tag">Exportação</span>
+                        </div>
+                        <p style="margin-top: 15px;"><span class="highlight">Canais de comercialização</span>:</p>
+                        <ul class="process-list">
+                            <li>Grandes redes (Carrefour, Pão de Açúcar, Assaí, Atacadão)</li>
+                            <li>Distribuidores regionais (padarias, mercearias)</li>
+                            <li>Atacado e atacarejos</li>
+                            <li>E-commerce e marketplaces</li>
+                        </ul>
+                    </div>
+                    <div class="info-box">
+                        <h3 class="info-title"><i class="fas fa-truck"></i> Veículos 
+                        
+                        </h3>
+                        <div class="transport-icons">
+                            <div class="transport-item" data-modal="caminhao-modal">
+                                <div class="transport-icon"><i class="fas fa-truck"></i></div>
+                                <div class="transport-name">Caminhões Médios</div>
+                            </div>
+                            <div class="transport-item" data-modal="van-distribuicao-modal">
+                                <div class="transport-icon"><i class="fas fa-shuttle-van"></i></div>
+                                <div class="transport-name">Vans/Utilitários</div>
+                            </div>
+                            <div class="transport-item" data-modal="transportadora-modal">
+                                <div class="transport-icon"><i class="fas fa-box"></i></div>
+                                <div class="transport-name">Transportadoras</div>
+                            </div>
+                        </div>
+                        <p style="margin-top: 15px;"><span class="highlight">E-commerce</span> atendido por transportadoras com rastreamento</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="arrow-down"><i class="fas fa-chevron-down"></i></div>
+            
+            <div class="phase">
+                <div class="phase-header">
+                    <div class="phase-number">5</div>
+                    <h2 class="phase-title">Consumo</h2>
+                </div>
+                <div class="phase-content">
+                    <div class="info-box">
+                        <h3 class="info-title"><i class="fas fa-shopping-cart"></i> Aquisição 
+                        </h3>
+                        <div>
+                            <span class="location-tag">Varejo Físico</span>
+                            <span class="location-tag">E-commerce</span>
+                        </div>
+                        <p style="margin-top: 15px;"><span class="highlight">Formatos disponíveis</span>:</p>
+                        <ul class="process-list">
+                            <li>Tabletes individuais</li>
+                            <li>Pacotes multipack</li>
+                            <li>Potes de paçoquita embalada</li>
+                            <li>Embalagens econômicas</li>
+                        </ul>
+                    </div>
+                    <div class="info-box">
+                        <h3 class="info-title"><i class="fas fa-home"></i> Entrega Final & Consumo 
+                            <span class="info-icon" data-modal="consumo-modal">
+                                <i class="fas fa-info-circle"></i>
+                            </span>
+                        </h3>
+                        <div class="transport-icons">
+                            <div class="transport-item" data-modal="veiculo-modal">
+                                <div class="transport-icon"><i class="fas fa-car"></i></div>
+                                <div class="transport-name">Veículo Próprio</div>
+                            </div>
+                            <div class="transport-item" data-modal="delivery-modal">
+                                <div class="transport-icon"><i class="fas fa-motorcycle"></i></div>
+                                <div class="transport-name">Delivery</div>
+                            </div>
+                        </div>
+                        <p style="margin-top: 15px;"><span class="highlight">Contextos de consumo</span>:</p>
+                        <ul class="process-list">
+                            <li>Lanche rápido em casa</li>
+                            <li>Consumo no trabalho e escola</li>
+                            <li>Snack energético para esportes</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #e74c3c;"></div>
+                <span>Processos Principais</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #2ecc71;"></div>
+                <span>Localizações/Origem</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #3498db;"></div>
+                <span>Transportes/Modais</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modais de Informação -->
+    <div id="origem-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3 class="modal-title">Origem da Matéria-Prima</h3>
+            <p>O amendoim, principal ingrediente da Paçoquita, é cultivado principalmente no interior de São Paulo (Marília, Jaboticabal, Tupã e Ribeirão Preto), responsável por mais de 90% da produção nacional. Minas Gerais e Goiás complementam o fornecimento.</p>
+            <p>O amendoim é colhido, beneficiado (descascado e selecionado) e transportado até a fábrica da Santa Helena em Ribeirão Preto.</p>
+        </div>
+    </div>
+
+    <div id="transporte-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3 class="modal-title">Transporte de Matéria-Prima</h3>
+            <p>O modal rodoviário é o principal meio de transporte para a matéria-prima:</p>
+            <ul>
+                <li><strong>Caminhões graneleiros</strong>: Transportam o amendoim cru em grandes quantidades, com carrocerias basculantes ou compartimentos para produtos agrícolas secos.</li>
+                <li><strong>Caminhões baú</strong>: Transportam insumos mais sensíveis como leite em pó, embalagens e aditivos, garantindo proteção contra intempéries.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="graneleiro-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3 class="modal-title">Caminhões Graneleiros</h3>
+            <p>Utilizados para transporte do amendoim cru diretamente das regiões produtoras até a fábrica em Ribeirão Preto.</p>
+            <p><strong>Características</strong>: Capacidade de carregar grandes volumes a granel, com sistemas de ventilação e fácil descarga. Possuem carroceria basculante ou com compartimentos específicos para produtos agrícolas secos.</p>
+        </div>
+    </div>
+
+    <div id="bau-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3 class="modal-title">Caminhões Baú</h3>
+            <p>Ele pode ser utilizado para o transporte de insumos, serve principalmente para produtos acabados, mas também pode transportar insumos sensíveis ou embalados, preservando qualidade e integridade da carga.</p>
+            <p><strong>Características</strong>: Suas características incluem uma estrutura fechada em metal ou fibra, capacidade variando de 3 a 30 toneladas, possibilidade de refrigeração quando necessário e design que permite empilhamento de pallets.</p>
+        </div>
+    </div>
+
+    <div id="processo-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3 class="modal-title">Processo Industrial</h3>
+            <p>Etapas detalhadas do processamento:</p>
+            <ol>
+                <li><strong>Recebimento e Armazenagem</strong>: Insumos são inspecionados e estocados em silos (amendoim) ou depósitos controlados.</li>
+                <li><strong>Seleção e Limpeza</strong>: Remoção de impurezas e grãos defeituosos do amendoim.</li>
+                <li><strong>Torrefação</strong>: Processo que desenvolve o aroma e sabor característicos.</li>
+                <li><strong>Moagem</strong>: Transformação do amendoim torrado em pasta.</li>
+                <li><strong>Mistura</strong>: Combinação com açúcar, sal e leite em pó em proporções específicas.</li>
+                <li><strong>Moldagem</strong>: Conformação no formato tradicional de "rolha" ou outros formatos.</li>
+                <li><strong>Resfriamento, Corte e Embalagem</strong>: Produtos são embalados em flowpacks e caixas de papelão.</li>
+                <li><strong>Estocagem</strong>: Armazenamento no CD interno antes da distribuição.</li>
+            </ol>
+        </div>
+    </div>
+
+    <div id="bau-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3 class="modal-title">Caminhões Baú</h3>
+            <p>Ele pode ser utilizado para o transporte de insumos, serve principalmente para produtos acabados, mas também pode transportar insumos sensíveis ou embalados, preservando qualidade e integridade da carga.</p>
+            <p><strong>Características</strong>: Suas características incluem uma estrutura fechada em metal ou fibra, capacidade variando de 3 a 30 toneladas, possibilidade de refrigeração quando necessário e design que permite empilhamento de pallets.</p>
+        </div>
+    </div>
+
+    <div id="modais-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3 class="modal-title">Modais de Transporte</h3>
+            <p><strong>Rodoviário (predominante)</strong>:</p>
+            <ul>
+                <li>Carretas e trucks para longas distâncias (15-30 toneladas)</li>
+                <li>Vans e furgões para distribuição urbana e entregas fracionadas</li>
+            </ul>
+            <p><strong>Marítimo</strong>: Contêineres secos (20 ou 40 pés) para exportação via Porto de Santos</p>
+        </div>
+    </div>
+
+    <div id="consumo-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3 class="modal-title">Consumo da Paçoquita</h3>
+            <p>A Paçoquita está presente em diversos contextos de consumo:</p>
+            <ul>
+                <li><strong>Em casa</strong>: Como sobremesa ou lanche rápido entre refeições</li>
+                <li><strong>No trabalho e escola</strong>: Como snack prático e energético</li>
+                <li><strong>Esportes</strong>: Como fonte de energia rápida, aproveitando as proteínas do amendoim</li>
+            </ul>
+            <p>A empresa detém cerca de 25% do mercado de doces à base de amendoim no Brasil.</p>
+        </div>
+    </div>
+
+    <!-- Adicione mais modais conforme necessário -->
+
+    <script>
+        // Função para abrir modais
+        document.querySelectorAll('.info-icon, .transport-item, .info-point').forEach(item => {
+            item.addEventListener('click', function() {
+                const modalId = this.getAttribute('data-modal');
+                if (modalId) {
+                    document.getElementById(modalId).style.display = 'flex';
+                }
+            });
+        });
+
+        // Fechar modais
+        document.querySelectorAll('.close-modal').forEach(closeBtn => {
+            closeBtn.addEventListener('click', function() {
+                this.closest('.modal').style.display = 'none';
+            });
+        });
+
+        // Fechar modal clicando fora dele
+        window.addEventListener('click', function(event) {
+            document.querySelectorAll('.modal').forEach(modal => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        });
+
+        // Interatividade para as fases
+        document.querySelectorAll('.phase').forEach(phase => {
+            phase.addEventListener('click', () => {
+                phase.style.backgroundColor = phase.style.backgroundColor === 'rgb(236, 240, 241)' ? '#fff' : '#ecf0f1';
+            });
+        });
+        
+        // Tooltips para elementos com informações adicionais
+        const tooltips = document.querySelectorAll('.tooltip');
+        tooltips.forEach(tooltip => {
+            tooltip.addEventListener('mouseenter', function(e) {
+                this.style.transform = 'scale(1.05)';
+                this.style.transition = 'transform 0.2s';
+            });
+            
+            tooltip.addEventListener('mouseleave', function(e) {
+                this.style.transform = 'scale(1)';
+            });
+        });
+    </script>
+</body>
+</html>
